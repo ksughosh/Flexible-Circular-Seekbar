@@ -1,27 +1,28 @@
 package com.skumar.flexiblecircularseekbar
 
 import android.annotation.SuppressLint
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import com.skumar.flexibleciruclarseekbar.CircularSeekBar
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(), View.OnClickListener {
-    val TAG = javaClass.simpleName ?: "TAG"
-    private var mStartClicked: Boolean = false; private var mMoreClicked:Boolean = false
+    val TAG = javaClass.simpleName
+    private var mStartClicked: Boolean = false
+    private var mMoreClicked: Boolean = false
 
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.floatingButtonLeft -> {
-                if (!mStartClicked || mMoreClicked) {
+                mStartClicked = if (!mStartClicked || mMoreClicked) {
                     floatingButtonLeft.setImageResource(R.drawable.eco_pressed)
                     floatingButtonRight.setImageResource(R.drawable.eco_normal)
-                    mStartClicked = true
+                    true
                 } else {
                     floatingButtonLeft.setImageResource(R.drawable.eco_normal)
-                    mStartClicked = false
+                    false
                 }
                 mCircularSeekBar.progress = mCircularSeekBar.min.toFloat()
             }
@@ -48,7 +49,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
         if (savedInstanceState != null) {
             progressValue = savedInstanceState.getFloat("value")
-            Log.d(TAG, "Progress value " + progressValue)
+            Log.d(TAG, "Progress value $progressValue")
         }
         mMoreClicked = false
         mStartClicked = mMoreClicked
@@ -77,20 +78,32 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         // Setting textview with the seek bar value
         mSeekBarValue.text = progressValue.toString() + "\u00B0"
 
-        fun setCirularSeekbarListener() {
-            mCircularSeekBar.setOnCircularSeekBarChangeListener(object : CircularSeekBar.OnCircularSeekBarChangeListener {
-                override fun onProgressChanged(CircularSeekBar: CircularSeekBar, progress: Float, fromUser: Boolean) {
-                    mCircularSeekBar.setMinimumAndMaximumNeedleScale(progress - 2.5f, progress + 2.5f)
+        fun setCircularSeekbarListener() {
+            mCircularSeekBar.setOnCircularSeekBarChangeListener(object :
+                CircularSeekBar.OnCircularSeekBarChangeListener {
+                override fun onProgressChanged(
+                    CircularSeekBar: CircularSeekBar,
+                    progress: Float,
+                    fromUser: Boolean
+                ) {
+                    mCircularSeekBar.setMinimumAndMaximumNeedleScale(
+                        progress - 2.5f,
+                        progress + 2.5f
+                    )
                     mSeekBarValue.text = progress.toString() + "\u00B0"
-                    if (progress < mCircularSeekBar.realMax / 2) {
-                        floatingButtonLeft.setImageResource(R.drawable.eco_pressed)
-                        floatingButtonRight.setImageResource(R.drawable.eco_normal)
-                    } else if (progress > mCircularSeekBar.realMax / 2 + 5) {
-                        floatingButtonRight.setImageResource(R.drawable.comfort_pressed)
-                        floatingButtonLeft.setImageResource(R.drawable.eco_normal)
-                    } else {
-                        floatingButtonLeft.setImageResource(R.drawable.eco_normal)
-                        floatingButtonRight.setImageResource(R.drawable.eco_normal)
+                    when {
+                        progress < mCircularSeekBar.realMax / 2 -> {
+                            floatingButtonLeft.setImageResource(R.drawable.eco_pressed)
+                            floatingButtonRight.setImageResource(R.drawable.eco_normal)
+                        }
+                        progress > mCircularSeekBar.realMax / 2 + 5 -> {
+                            floatingButtonRight.setImageResource(R.drawable.comfort_pressed)
+                            floatingButtonLeft.setImageResource(R.drawable.eco_normal)
+                        }
+                        else -> {
+                            floatingButtonLeft.setImageResource(R.drawable.eco_normal)
+                            floatingButtonRight.setImageResource(R.drawable.eco_normal)
+                        }
                     }
                     progressValue = progress
                 }
